@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces/${localWorkspaceFolderBasename}:cached
+      # Persist tutor venv and data to a named volume
+      - tutor_data:/home/vscode/.local/share/tutor
+      - tutor_venv:/home/vscode/tutor_venv
+
+    # Expose ports (these are also defined in devcontainer.json for forwarding)
+    # These ports are examples; Tutor will dynamically assign some.
+    # We will forward common ones like 8000 (LMS) and 8001 (Studio).
+    ports:
+      - "8000:8000" 
+      - "8001:8001"
+
+    # Keep the container running
+    command: sleep infinity
+
+    # For Docker-in-Docker
+    privileged: true
+    # Also needed for Docker-in-Docker to communicate with the host Docker daemon
+    # However, with the docker-in-docker feature, this might not be strictly necessary
+    # but is often included in similar setups.
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock 
+
+volumes:
+  tutor_data:
+  tutor_venv:

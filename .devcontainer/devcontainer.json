@@ -1,0 +1,51 @@
+{
+  "name": "Open edX Tutor Development Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.10"
+    }
+  },
+
+  "portsAttributes": {
+    "8000": {
+      "label": "LMS",
+      "onAutoForward": "openPreview"
+    },
+    "8001": {
+      "label": "CMS (Studio)",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "forwardPorts": [8000, 8001],
+
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y python3-virtualenv jq && python3 -m virtualenv ~/tutor_venv && . ~/tutor_venv/bin/activate && pip install --upgrade pip && TUTOR_VERSION=$(curl -s https://api.github.com/repos/overhangio/tutor/releases/latest | jq -r .tag_name) && pip install \"tutor[full]==${TUTOR_VERSION}\" && echo '\n# Activate Tutor venv automatically in new shells' >> ~/.bashrc && echo '. ~/tutor_venv/bin/activate' >> ~/.bashrc && echo '\n# Tutor Installation Notes:' >> ~/.bashrc && echo 'echo \"---------------------------------------------------------------------\"' >> ~/.bashrc && echo 'echo \"Tutor (version ${TUTOR_VERSION}) installed in ~/tutor_venv.\"' >> ~/.bashrc && echo 'echo \"Virtual environment is automatically activated in new shells.\"' >> ~/.bashrc && echo 'echo \"To start Open edX for the first time, run: tutor local quickstart\"' >> ~/.bashrc && echo 'echo \"For subsequent starts, use: tutor local start\"' >> ~/.bashrc && echo 'echo \"---------------------------------------------------------------------\"' >> ~/.bashrc",
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true,
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylint",
+        "ms-azuretools.vscode-docker",
+        "github.codespaces",
+        "redhat.vscode-yaml",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
