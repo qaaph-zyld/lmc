@@ -56,29 +56,30 @@ After the automatic `postCreateCommand` completes (you'll see the welcome messag
 
 1.  **Open a new terminal** in VS Code within the Codespace (if one isn't already open or if you want a clean one).
 2.  The Tutor virtual environment (`~/tutor_venv`) should be automatically activated.
-3.  Run the Tutor quickstart command. This command will build the Docker images for Open edX, configure it, and start it. This process will take a significant amount of time (potentially 20-40 minutes or more depending on system resources allocated by Codespaces).
+3.  Run the Tutor launch command. This command will build the Docker images for Open edX, configure it, and start it. This process will take a significant amount of time (potentially 20-40 minutes or more depending on system resources allocated by Codespaces).
     ```bash
-    tutor local quickstart
+    tutor local launch
     ```
-    Follow any prompts. For the LDomain, you can use `local.overhang.io` if you don't have a specific domain in mind for this initial setup.
+    Follow any prompts. For the LMS hostname, you can use `local.openedx.io` or `local.overhang.io` if you don't have a specific domain in mind for this initial setup.
 
 ### Accessing Open edX
 
-Once `tutor local quickstart` (or `tutor local start`) is complete:
+Once `tutor local launch` (or `tutor local start`) is complete:
 
 *   **LMS (Learning Management System):** GitHub Codespaces automatically forwards port `8000`. You should see a notification in VS Code, or you can go to the "Ports" tab in VS Code to find the forwarded URL. It will typically be something like `https://<your-codespace-name>-8000.app.github.dev`.
 *   **Studio (Course Management System):** GitHub Codespaces automatically forwards port `8001`. Similar to the LMS, find the forwarded URL in the "Ports" tab. It will typically be `https://<your-codespace-name>-8001.app.github.dev`.
 
-Default login credentials after `quickstart` are usually:
+Default login credentials after initialization are usually:
 *   Username: `admin`
 *   Password: `admin` (or as specified during `quickstart` if prompted)
 
 ### Subsequent Starts and Stops
 
-*   **To start Open edX (after the initial `quickstart`):**
+*   **To start Open edX (after the initial setup):**
     ```bash
-    tutor local start
+    tutor local start -d
     ```
+    The `-d` flag runs the services in detached mode (in the background).
 *   **To stop Open edX:**
     ```bash
     tutor local stop
@@ -99,8 +100,20 @@ The Tutor installation is contained within the `~/tutor_venv` Python virtual env
 
 ### Troubleshooting
 
-*   If Docker commands fail, ensure the Docker-in-Docker feature started correctly. Check the `postCreateCommand` logs.
-*   If Tutor commands are not found, ensure `~/tutor_venv/bin` is in your `PATH` or that the venv is active (`which tutor` should point to the venv).
+*   **Permission Issues:** If you encounter permission errors when running Tutor commands, you may need to fix the permissions for the Tutor configuration directory:
+    ```bash
+    sudo mkdir -p /home/vscode/.local/share/tutor
+    sudo chown -R vscode:vscode /home/vscode/.local/share/tutor
+    ```
+
+*   **Virtual Environment Issues:** If the automatic virtual environment setup fails (e.g., `tutor` command not found), you can install Tutor globally:
+    ```bash
+    pip install "tutor[full]==$(curl -s https://api.github.com/repos/overhangio/tutor/releases/latest | jq -r .tag_name)"
+    ```
+
+*   **Docker Issues:** If Docker commands fail, ensure the Docker-in-Docker feature started correctly. Check the `postCreateCommand` logs.
+
+*   **Accessing Services:** In GitHub Codespaces, you'll need to use the forwarded ports to access the Open edX services. Check the "PORTS" tab in VS Code to find the URLs for ports 80 and 443.
 
 This setup provides a fully functional Open edX development environment managed by Tutor, all within GitHub Codespaces.
 
